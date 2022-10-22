@@ -46,7 +46,13 @@
       onload="this.media='all'"
     >
   {%- endif -%}
-
+  {%- if product.title == "Plain T-Shirt" -%}
+    <div style="width: 100%; max-height: 300px; overflow:hidden; margin-bottom: 1rem;">
+      <video autoplay loop muted style="width: 100%; margin-top:-15%;">
+        <source src="https://cdn.shopify.com/videos/c/o/v/54b45c63f1004109906caefb6d36726a.mp4" type="video/mp4">
+      </video>
+    </div>
+  {%- endif -%}
   <div class="product product--{{ section.settings.media_size }} product--{{ section.settings.media_position }} product--{{ section.settings.gallery_layout }} product--mobile-{{ section.settings.mobile_thumbnails }} grid grid--1-col {% if product.media.size > 0 %}grid--2-col-tablet{% else %}product--no-media{% endif %}">
     <div class="grid__item product__media-wrapper{% if section.settings.media_position == 'right' %} medium-hide large-up-hide{% endif %}">
       <media-gallery
@@ -355,10 +361,23 @@
               </div>
             {%- when 'description' -%}
               {%- if product.description != blank -%}
-                <div class="product__description rte quick-add-hidden">
-                  {{ product.description }}
-                </div>
+                <my-accordion>
+                  <span slot="summary">Descrizione</span>
+                  <span slot="content">
+                    <div class="accordion__content rte quick-add-hidden">
+                      {{ product.description }}
+                    </div>
+                  </span>
+                </my-accordion>
               {%- endif -%}
+                <my-accordion>
+                  <span slot="summary">Categoria</span>
+                  <span slot="content">
+                    <div class="accordion__content rte quick-add-hidden">
+                      {{ product.type }}
+                    </div>
+                  </span>
+                </my-accordion>
             {%- when 'custom_liquid' -%}
               {{ block.settings.custom_liquid }}
             {%- when 'collapsible_tab' -%}
@@ -474,77 +493,82 @@
               <script src="{{ 'share.js' | asset_url }}" defer="defer"></script>
             {%- when 'variant_picker' -%}
               {%- unless product.has_only_default_variant -%}
-                {%- if block.settings.picker_type == 'button' -%}
-                  <variant-radios
-                    class="no-js-hidden"
-                    data-section="{{ section.id }}"
-                    data-url="{{ product.url }}"
-                    {{ block.shopify_attributes }}
-                  >
-                    {%- for option in product.options_with_values -%}
-                      <fieldset class="js product-form__input">
-                        <legend class="form__label">{{ option.name }}</legend>
-                        {%- for value in option.values -%}
-                          <input
-                            type="radio"
-                            id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
-                            name="{{ option.name }}"
-                            value="{{ value | escape }}"
-                            form="{{ product_form_id }}"
-                            {% if option.selected_value == value %}
-                              checked
-                            {% endif %}
-                          >
-                          <label for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}">
-                            {{ value }}
-                          </label>
-                        {%- endfor -%}
-                      </fieldset>
-                    {%- endfor -%}
-                    <script type="application/json">
-                      {{ product.variants | json }}
-                    </script>
-                  </variant-radios>
-                {%- else -%}
-                  <variant-selects
-                    class="no-js-hidden"
-                    data-section="{{ section.id }}"
-                    data-url="{{ product.url }}"
-                    {{ block.shopify_attributes }}
-                  >
-                    {%- for option in product.options_with_values -%}
-                      <div class="product-form__input product-form__input--dropdown">
-                        <label class="form__label" for="Option-{{ section.id }}-{{ forloop.index0 }}">
-                          {{ option.name }}
-                        </label>
-                        <div class="select">
-                          <select
-                            id="Option-{{ section.id }}-{{ forloop.index0 }}"
-                            class="select__select"
-                            name="options[{{ option.name | escape }}]"
-                            form="{{ product_form_id }}"
-                          >
+                <my-accordion>
+                  <span slot="summary">Selezione varianti</span>
+                  <span slot="content">
+                    {%- if block.settings.picker_type == 'button' -%}
+                      <variant-radios
+                        class="no-js-hidden"
+                        data-section="{{ section.id }}"
+                        data-url="{{ product.url }}"
+                        {{ block.shopify_attributes }}
+                      >
+                        {%- for option in product.options_with_values -%}
+                          <fieldset class="js product-form__input">
+                            <legend class="form__label">{{ option.name }}</legend>
                             {%- for value in option.values -%}
-                              <option
+                              <input
+                                type="radio"
+                                id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                                name="{{ option.name }}"
                                 value="{{ value | escape }}"
+                                form="{{ product_form_id }}"
                                 {% if option.selected_value == value %}
-                                  selected="selected"
+                                  checked
                                 {% endif %}
                               >
+                              <label for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}">
                                 {{ value }}
-                              </option>
+                              </label>
                             {%- endfor -%}
-                          </select>
-                          {% render 'icon-caret' %}
-                        </div>
-                      </div>
-                    {%- endfor -%}
+                          </fieldset>
+                        {%- endfor -%}
+                        <script type="application/json">
+                          {{ product.variants | json }}
+                        </script>
+                      </variant-radios>
+                    {%- else -%}
+                      <variant-selects
+                        class="no-js-hidden"
+                        data-section="{{ section.id }}"
+                        data-url="{{ product.url }}"
+                        {{ block.shopify_attributes }}
+                      >
+                        {%- for option in product.options_with_values -%}
+                          <div class="product-form__input product-form__input--dropdown">
+                            <label class="form__label" for="Option-{{ section.id }}-{{ forloop.index0 }}">
+                              {{ option.name }}
+                            </label>
+                            <div class="select">
+                              <select
+                                id="Option-{{ section.id }}-{{ forloop.index0 }}"
+                                class="select__select"
+                                name="options[{{ option.name | escape }}]"
+                                form="{{ product_form_id }}"
+                              >
+                                {%- for value in option.values -%}
+                                  <option
+                                    value="{{ value | escape }}"
+                                    {% if option.selected_value == value %}
+                                      selected="selected"
+                                    {% endif %}
+                                  >
+                                    {{ value }}
+                                  </option>
+                                {%- endfor -%}
+                              </select>
+                              {% render 'icon-caret' %}
+                            </div>
+                          </div>
+                        {%- endfor -%}
 
-                    <script type="application/json">
-                      {{ product.variants | json }}
-                    </script>
-                  </variant-selects>
-                {%- endif -%}
+                        <script type="application/json">
+                          {{ product.variants | json }}
+                        </script>
+                      </variant-selects>
+                    {%- endif -%}
+                  </span>
+                </my-accordion>
               {%- endunless -%}
 
               <noscript class="product-form__noscript-wrapper-{{ section.id }}">
@@ -1109,6 +1133,72 @@
         hiddenInput.value = event.currentTarget.value;
       });
     });
+
+    class MyAccordion extends HTMLElement {
+  constructor() {
+    super();
+    
+    // create a shadow root
+    const shadow = this.attachShadow({mode: 'open'});
+    
+    // create divs
+    
+    const accordion = document.createElement('details');
+    accordion.setAttribute('class', 'my-accordion');
+    accordion.innerHTML = `
+    <summary><slot name="summary">Details</slot></summary>
+    <slot name="content">Description</slot>`;
+    
+    // create styles
+    const myStyle = document.createElement('style');
+    
+    myStyle.textContent = `
+    .my-accordion{
+    font-size: 1.4rem;
+    }
+    
+    .my-accordion > summary {
+    list-style-type: none;
+    outline: none;
+    cursor: pointer;
+    border-top: 1px solid lightgrey;
+    border-bottom: 1px solid lightgrey;
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 0.5rem;
+    color: rgb(var(--color-foreground));
+    }
+
+    .my-accordion>summary::-webkit-details-marker {
+    display: none;
+    }
+    
+    .my-accordion[open]>summary{
+      background-color: black;
+      color: white;
+    }
+
+    .my-accordion>summary::after {
+    content: '+';
+    padding-right: 1rem;
+    }
+
+    .my-accordion[open]>summary::after {
+    content: '-';
+    }
+
+    .my-accordion[open]>summary {
+    margin-bottom: 0.5rem;
+    }
+    `;
+    
+    shadow.appendChild(myStyle);
+    shadow.appendChild(accordion);
+    
+  }
+}
+
+customElements.define("my-accordion", MyAccordion);
   </script>
 
   {%- liquid
